@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import List from "./List";
 import ListItem from "./ListItem";
+import { getData, putData, deleteData } from "../services/fetch";
 
 
 const Home = () => {
 	const [task, setTask] = useState(""); // Estado para poder escuchar el value del input.
 	const [toDoList, setToDoList] = useState([]); // Estado para actualizar la lista.
-	
+	useEffect(() => {
+		getData()
+		.then(res => setToDoList(res))
+		.catch(err => console.log(err))
+	}, []);
+	console.log(toDoList)
+
 	const handleNewTask = (e) => {  //Función handle para que el input sea "variable", dando valor a value = contenido del input.
 		setTask(e.target.value)
 	}
@@ -39,6 +46,8 @@ const Home = () => {
 		setToDoList(prev => [newTask, ...prev])
 	}
 
+	const handlePutData = () => {putData(URL, toDoList)}
+
 	return (
 		<List>
 			<ListItem>
@@ -60,7 +69,8 @@ const Home = () => {
 						</ListItem>
 					)
 				})
-				}
+			}
+			
 			<ListItem id="items-left">
 				{toDoList.length} items left.
 			</ListItem>
