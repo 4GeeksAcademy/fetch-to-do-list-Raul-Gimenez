@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import List from "./List";
 import ListItem from "./ListItem";
-import { getData, putData, deleteData } from "../services/fetch";
+import { getData, putData } from "../services/fetch";
 
 
 const Home = () => {
@@ -9,10 +9,10 @@ const Home = () => {
 	const [toDoList, setToDoList] = useState([]); // Estado para actualizar la lista.
 	useEffect(() => {
 		getData()
-		.then(res => setToDoList(res))
+		.then(toDoList === null ? setToDoList([]) : res => setToDoList(res))	
 		.catch(err => console.log(err))
 	}, []);
-	console.log(toDoList)
+	console.log("Este es el console.log", toDoList)
 
 	const handleNewTask = (e) => {  //Función handle para que el input sea "variable", dando valor a value = contenido del input.
 		setTask(e.target.value)
@@ -20,9 +20,13 @@ const Home = () => {
 	
 	const handleDeleteButton = (id) => {
 		const newToDoDoDataList = toDoList.filter((element) => element.id !== id)
-		return (
-			setToDoList(newToDoDoDataList)// Renderizado del estado de la lista
-			)
+		setToDoList(newToDoDoDataList)// Renderizado del estado de la lista boorando la task con id coincidente
+			
+		putData(toDoList)
+		.then(res => setToDoList(res))
+		.catch(err => console.log(err))
+
+		return (toDoList)
 	}
 	
 	const handleSubmit = (e) => { // Función handle para el submit. Con esto controlamos la acción del submit del al ejecutarlo.
@@ -44,9 +48,12 @@ const Home = () => {
 		}
 		
 		setToDoList(prev => [newTask, ...prev])
+		setTask("") //Borrar el valor del input al hacer submit
+		
+		putData(toDoList)
+			.then(res => setToDoList(res))
+			.catch(err => console.log(err))
 	}
-
-	const handlePutData = () => {putData(URL, toDoList)}
 
 	return (
 		<List>

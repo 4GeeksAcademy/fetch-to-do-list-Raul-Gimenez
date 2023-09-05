@@ -1,4 +1,4 @@
-const URL = "https://to-do-list-raul-gimenez-default-rtdb.europe-west1.firebasedatabase.app/to-do-list";
+const URL = "https://pruebas-raul-4geeks-default-rtdb.europe-west1.firebasedatabase.app/to-do-list.json";
 
 
 export const getData = () => {
@@ -8,7 +8,6 @@ export const getData = () => {
         if(!res.ok){throw Error()}
         return (res.json())
     })
-    .then(res => console.log(res))
     .catch(err => console.log(err))
     )
 }
@@ -28,7 +27,7 @@ export const putData = (data) => {
     .catch(err => console.log(err))
     )
 }
-
+/*
 export const deleteData = () => {
     return (
     fetch(
@@ -42,3 +41,4 @@ export const deleteData = () => {
     .catch(err => console.log(err))
     )
 }
+*/
