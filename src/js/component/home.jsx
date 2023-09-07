@@ -3,86 +3,104 @@ import List from "./List";
 import ListItem from "./ListItem";
 import { getData, putData } from "../services/fetch";
 
-
 const Home = () => {
-	const [task, setTask] = useState(""); // Estado para poder escuchar el value del input.
-	const [toDoList, setToDoList] = useState([]); // Estado para actualizar la lista.
-	useEffect(() => {
-		getData()
-		.then(toDoList === null ? setToDoList([]) : res => setToDoList(res))	
-		.catch(err => console.log(err))
-	}, []);
-	console.log("Este es el console.log", toDoList)
+  const [task, setTask] = useState("");
+  const [toDoList, setToDoList] = useState([]);
 
-	const handleNewTask = (e) => {  //Función handle para que el input sea "variable", dando valor a value = contenido del input.
-		setTask(e.target.value)
+  useEffect(() => {
+    getData()
+      .then((res) => {
+        if (res === null) {
+          setToDoList([]);
+        } else {
+          setToDoList(res);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  const handleNewTask = (e) => {
+    setTask(e.target.value);
+  };
+
+  const handleDeleteButton = (id) => {
+    const newToDoDataList = toDoList.filter((element) => element.id !== id);
+
+    putData(newToDoDataList)
+      .then((res) => {
+        setToDoList(res);
+      })
+      .catch((err) => console.log(err));
+
+	console.log(toDoList)
+  
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+	if(task === "") {
+		return alert("Empty task, please put a valid one")
 	}
 	
-	const handleDeleteButton = (id) => {
-		const newToDoDoDataList = toDoList.filter((element) => element.id !== id)
-		setToDoList(newToDoDoDataList)// Renderizado del estado de la lista boorando la task con id coincidente
-			
-		putData(toDoList)
-		.then(res => setToDoList(res))
-		.catch(err => console.log(err))
-
-		return (toDoList)
-	}
-	
-	const handleSubmit = (e) => { // Función handle para el submit. Con esto controlamos la acción del submit del al ejecutarlo.
-		e.preventDefault(e);
-
-		const getLastId = () => {
-			let ids = toDoList.map(toDo => toDo.id);
-			if (ids[0] === undefined){
-				const lastId = 0
-				return lastId;
-			};
-			const lastId = Math.max(...ids) + 1;
-			return lastId
-		};
-
-		const newTask = {  //Creo un objeto con el id más alto y con el valor de la key task igual al promt value del input con id o name = taskCreator
-			id : getLastId(),
-			task
-		}
+	const taskExistCheck = () => {
+		const taskList = toDoList.map(toDo => toDo.task);
+		return taskList.includes(task)
+	} 
 		
-		setToDoList(prev => [newTask, ...prev])
-		setTask("") //Borrar el valor del input al hacer submit
-		
-		putData(toDoList)
-			.then(res => setToDoList(res))
-			.catch(err => console.log(err))
+    if (taskExistCheck()){
+		return alert("This task already exist, please put a new one")
 	}
+	const getLastId = () => {
+      const ids = toDoList.map((toDo) => toDo.id);
+      if (ids.length === 0) {
+        return 0;
+      }
+      return Math.max(...ids) + 1;
+    };
 
-	return (
-		<List>
-			<ListItem>
-				<form onSubmit={handleSubmit} >
-				<input
-					type="text"
-					id="taskCreator"
-					name="taskCreator"
-					value={task}
-					onChange={handleNewTask}
-          		/>
-				</form>
-			</ListItem>
-			{
-				toDoList.map((toDo) => { 
-					return (
-						<ListItem id={`task-${toDo.id}`} isTask={true}  toDelete={() => handleDeleteButton(toDo.id)}>
-							{toDo.task}
-						</ListItem>
-					)
-				})
-			}
-			
-			<ListItem id="items-left">
-				{toDoList.length} items left.
-			</ListItem>
-		</List>
-	);
+    const newTask = {
+      id: getLastId(),
+      task,
+    };
+
+    const newToDoList = [ newTask, ...toDoList];
+
+    putData(newToDoList)
+      .then((res) => {
+        setToDoList(res);
+      })
+      .catch((err) => console.log(err));
+
+    setTask("");
+  };
+
+  return (
+    <List>
+      <ListItem>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            id="taskCreator"
+            name="taskCreator"
+            value={task}
+            onChange={handleNewTask}
+          />
+        </form>
+      </ListItem>
+      {!toDoList ? setToDoList([]) : toDoList.map((toDo) => (
+        <ListItem
+          key={`task-${toDo.id}`}
+          id={`task-${toDo.id}`}
+          isTask={true}
+          toDelete={() => handleDeleteButton(toDo.id)}
+        >
+          {toDo.task}
+        </ListItem>
+      ))}
+      <ListItem id="items-left">{!toDoList ? setToDoList([]) : toDoList.length} items left.</ListItem>
+    </List>
+  );
 };
 
 export default Home;
